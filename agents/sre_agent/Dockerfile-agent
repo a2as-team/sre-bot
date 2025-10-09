@@ -44,6 +44,15 @@ COPY requirements-dev.txt requirements-dev.txt
 RUN pip install --upgrade pip && \
     pip install --no-cache-dir --prefer-binary -r requirements.txt
 
+# Verify uvx is available for ECS MCP Server execution
+RUN uvx --help || echo "uvx command verification failed"
+
+# Pre-install ECS MCP Server to avoid download timeout during runtime
+# This addresses the BrokenResourceError caused by model download during agent init
+RUN echo "Pre-installing ECS MCP Server to warm cache..." && \
+    timeout 180s uvx --from awslabs-ecs-mcp-server ecs-mcp-server --help || \
+    echo "ECS MCP Server cache warming completed or timed out"
+
 # Copy project files - ensure all sub_agents are included
 COPY . .
 

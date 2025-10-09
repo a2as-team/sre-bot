@@ -1,6 +1,6 @@
 # SRE Assistant Agent
 
-A powerful Site Reliability Engineering (SRE) assistant built with Google's Agent Development Kit (ADK), featuring specialized agents for AWS cost analysis, Kubernetes operations, and operational best practices.
+A powerful Site Reliability Engineering (SRE) assistant built with Google's Agent Development Kit (ADK), featuring specialized agents for AWS cost analysis, ECS monitoring and troubleshooting via MCP Server integration, Kubernetes operations, and operational best practices.
 
 ![Cost Reporting Demo](https://github.com/serkanh/static-files/blob/main/gifs/cost-reporting-demo.gif?raw=true)
 
@@ -43,6 +43,10 @@ BEDROCK_INFERENCE_PROFILE=arn:aws:bedrock:us-west-2:812201244513:inference-profi
 # Optional: AWS and Kubernetes configurations
 AWS_PROFILE=your_aws_profile
 KUBE_CONTEXT=your_kube_context
+
+# ECS MCP Configuration (Read-Only)
+ECS_ALLOW_SENSITIVE_DATA=true  # Enable to see environment variables in task definitions
+DISABLE_ECS_MCP_AGENT=false    # Set to true to disable ECS MCP agent if needed
 ```
 
 ### 3. Start the Agent
@@ -72,9 +76,16 @@ agents/sre_agent/
 ├── serve.py              # FastAPI server with health checks
 ├── utils.py              # Shared utilities
 └── sub_agents/
-    └── aws_cost/         # AWS cost analysis module
-        ├── agent.py      # Agent configuration
-        ├── tools/        # Cost analysis tools
+    ├── aws_cost/         # AWS cost analysis module
+    │   ├── agent.py      # Agent configuration
+    │   ├── tools/        # Cost analysis tools
+    │   └── prompts/      # Agent instructions
+    ├── aws_core/         # AWS infrastructure operations
+    │   ├── agent.py      # Agent configuration
+    │   ├── tools/        # Infrastructure tools
+    │   └── prompts/      # Agent instructions
+    └── ecs_mcp/          # ECS monitoring and troubleshooting (MCP-based)
+        ├── agent.py      # Agent configuration with MCPToolset
         └── prompts/      # Agent instructions
 ```
 
@@ -89,6 +100,22 @@ agents/sre_agent/
 - Identify the most expensive AWS accounts
 - Compare costs across different time periods
 - Generate cost optimization recommendations
+
+### ECS Monitoring and Troubleshooting (MCP-Based)
+
+**Powered by AWS ECS MCP Server integration with comprehensive ECS operations:**
+
+- **Resource Discovery**: List and describe ECS clusters, services, tasks, and task definitions via `ecs_resource_management`
+- **Advanced Troubleshooting**: Multi-dimensional diagnostic capabilities via `ecs_troubleshooting_tool`
+- **Configuration Review**: Examine task definitions including environment variables and secrets
+- **Service Monitoring**: Review service events and deployment history
+- **Network Analysis**: Check VPC, subnet, and security group configurations
+- **Image Management**: Detect image pull failures and ECR repository status
+- **Infrastructure Guidance**: CloudFormation-based ECS infrastructure creation and management
+- **AWS Documentation**: Real-time access to AWS ECS documentation and best practices
+- **Read-Only Focus**: Safe monitoring without infrastructure modification risk (configurable)
+
+**Agent Access**: Transfer to `ecs_mcp_agent` for specialized ECS operations
 
 ### Operational Excellence
 
@@ -417,6 +444,7 @@ ERROR: Authentication failed with provider
    - `Authentication failed` → Verify API key is valid
    - See [AI Model Configuration](#-ai-model-configuration) for detailed setup
 
+
 ### Health Checks
 
 ```bash
@@ -438,6 +466,18 @@ curl http://localhost:8000/health/liveness
 - `get_cost_by_service` - Service-level cost breakdown
 - `get_cost_by_tag` - Tag-based cost analysis
 - `get_most_expensive_account` - Identify highest-cost accounts
+
+### ECS MCP Tools (via `ecs_mcp_agent`)
+
+- `ecs_resource_management` - Direct ECS API operations (ListClusters, DescribeServices, etc.)
+- `ecs_troubleshooting_tool` - Multi-action ECS diagnostic capabilities
+- `get_deployment_status` - Check ECS deployment status and ALB URLs
+- `create_ecs_infrastructure` - CloudFormation-based ECS infrastructure creation
+- `containerize_app` - Application containerization guidance
+- `aws_knowledge_*` tools - Real-time AWS documentation and regional information
+
+## 🗂️ Project Structure Notes
+
 
 ## 🤝 Contributing
 

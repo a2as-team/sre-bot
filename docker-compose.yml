@@ -44,6 +44,7 @@ services:
       - DB_USER=postgres
       - ADK_UI_ENABLED=false
       - PORT=8000
+      - FASTMCP_LOG_LEVEL=${FASTMCP_LOG_LEVEL:-DEBUG}
     env_file:
       - agents/.env  # Secrets and user-specific configs
     volumes:
